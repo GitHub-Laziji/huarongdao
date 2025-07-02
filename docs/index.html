@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>huarongdao</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div style="display: flex;flex-direction: column;">
+          <div>
+            
+          </div>
+        </div>
+
+
+    </div>
+    <script src="./lib/vue@3.2.47.global.min.js"></script>
+    <script>
+        const app = Vue.createApp({
+            data() {
+                return {
+                    w: 3,
+                    h: 3,
+                    map: []
+                }
+            },
+            mounted() {
+                let t = this.w * this.h - 1;
+                let arr = [];
+                for (let i = 1; i <= t; i++) {
+                    arr.push({ v: i, w: Math.random() });
+                }
+                arr.sort((a, b) => a.w - b.w);
+                this.map = [];
+                for (let i = 0; i < arr.length; i++) {
+                    if (i % this.w == 0) {
+                        this.map.push([]);
+                    }
+                    this.map[this.map.length - 1].push(arr[i].v);
+                }
+                this.map[this.map.length - 1].push(0);
+                console.log(this.map)
+            },
+            methods: {
+            }
+        });
+        app.mount("#app");
+    </script>
+</body>
+
+</html>
