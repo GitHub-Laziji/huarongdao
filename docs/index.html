@@ -19,11 +19,13 @@
             <div v-for="(row,y) of map" style="display: flex;">
                 <div v-for="(col,x) of row" @click="step(x,y)"
                     style="width: 100px;height: 100px;border: 1px solid #555;">
-                    <div style="display: flex;justify-content: center;align-items: center;width: 100%;height: 100%;background: #E6A23C;" v-if="col>0">
+                    <div style="display: flex;justify-content: center;align-items: center;width: 100%;height: 100%;background: #E6A23C;"
+                        v-if="col>0">
                         {{col}}
                     </div>
-                    <div style="display: flex;justify-content: center;align-items: center;width: 100%;height: 100%;background: #909399;" v-else>
-                
+                    <div style="display: flex;justify-content: center;align-items: center;width: 100%;height: 100%;background: #909399;"
+                        v-else>
+
                     </div>
                 </div>
             </div>
@@ -34,7 +36,7 @@
         const app = Vue.createApp({
             data() {
                 return {
-                    w: 3,
+                    w: 2,
                     h: 3,
                     map: []
                 }
@@ -42,16 +44,32 @@
             mounted() {
                 let t = this.w * this.h - 1;
                 let arr = [];
-                for (let i = 0; i <= t; i++) {
+                for (let i = 1; i <= t; i++) {
                     arr.push({ v: i, w: Math.random() });
                 }
                 arr.sort((a, b) => a.w - b.w);
+                let rn = 0;
+                for (let i = 0; i < arr.length; i++) {
+                    for (let j = i + 1; j < arr.length; j++) {
+                        if (arr[j].v > arr[i].v) {
+                            rn++;
+                        }
+                    }
+                }
+                console.log(rn);
+                rn += this.w * this.h;
+                arr.push({ v: 0 });
                 this.map = [];
                 for (let i = 0; i < arr.length; i++) {
                     if (i % this.w == 0) {
                         this.map.push([]);
                     }
-                    this.map[this.map.length - 1].push(arr[i].v);
+                    let v = arr[i].v;
+                    if (rn % 2 === 0) {
+                        console.log("==")
+                        v = v == 1 ? 2 : v == 2 ? 1 : v;
+                    }
+                    this.map[this.map.length - 1].push(v);
                 }
                 console.log(this.map)
             },
