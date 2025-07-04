@@ -19,10 +19,11 @@
     <div id="app" style="min-width: 100vw;min-height: 100vh;display: flex;justify-content: center;align-items: center;">
         <div style="box-shadow: var(--el-box-shadow);padding: 20px;border-radius: 4px;">
             <div style="display: flex;justify-content: center;font-size: 30px;font-weight: 600;">数字华容道</div>
-            <div style="margin-top: 20px;">
+            <div style="margin-top: 20px;display: flex;">
                 <el-select v-model="size" placeholder="难度" style="width: 100%;" @change="v=>selectSize(v,v)">
                     <el-option v-for="item in sizes" :key="item" :label="item+'X'+item" :value="item" />
                 </el-select>
+                <el-button style="margin-left: 10px;" @click="auto()">自动完成</el-button>
             </div>
             <div style="display: flex;flex-direction: column;border: 1px solid #555;margin-top: 20px;">
                 <div v-for="(row,y) of map" style="display: flex;">
@@ -125,6 +126,11 @@
                         alert(`恭喜你完成 ${this.w}X${this.h} 难度的游戏！耗时：${Math.floor(dd / 1000)}秒`);
                         this.genMap();
                     });
+                },
+                auto() {
+                    const solve = (map, w, h, subW, subH) => {
+
+                    }
                 }
             }
         });
