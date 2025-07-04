@@ -1,81 +1,104 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>huarongdao</title>
+    <link rel="stylesheet" href="./lib/element-plus@2.9.11/index.css" />
     <style>
         body {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
     </style>
 </head>
 
 <body>
-    <div id="app" style="width: 100vw;height: 100vh;display: flex;justify-content: center;align-items: center;">
-        <div style="display: flex;flex-direction: column;border: 1px solid #555;">
-            <div v-for="(row,y) of map" style="display: flex;">
-                <div v-for="(col,x) of row" @click="step(x,y)"
-                    style="width: 100px;height: 100px;border: 1px solid #555;">
-                    <div style="display: flex;justify-content: center;align-items: center;width: 100%;height: 100%;background: #E6A23C;"
-                        v-if="col>0">
-                        {{col}}
-                    </div>
-                    <div style="display: flex;justify-content: center;align-items: center;width: 100%;height: 100%;background: #909399;"
-                        v-else>
+    <div id="app" style="min-width: 100vw;min-height: 100vh;display: flex;justify-content: center;align-items: center;">
+        <div style="box-shadow: var(--el-box-shadow);padding: 20px;border-radius: 4px;">
+            <div style="display: flex;justify-content: center;font-size: 30px;font-weight: 600;">数字华容道</div>
+            <div style="margin-top: 20px;">
+                <el-select v-model="size" placeholder="难度" style="width: 100%;" @change="v=>selectSize(v,v)">
+                    <el-option v-for="item in sizes" :key="item" :label="item+'X'+item" :value="item" />
+                </el-select>
+            </div>
+            <div style="display: flex;flex-direction: column;border: 1px solid #555;margin-top: 20px;">
+                <div v-for="(row,y) of map" style="display: flex;">
+                    <div v-for="(col,x) of row" @click="step(x,y)"
+                        style="width: 80px;height: 80px;border: 1px solid #555;">
+                        <div style="display: flex;justify-content: center;align-items: center;width: 100%;height: 100%;background: #E6A23C;font-size: 20px;font-weight: 600;"
+                            v-if="col>0">
+                            {{col}}
+                        </div>
+                        <div style="display: flex;justify-content: center;align-items: center;width: 100%;height: 100%;background: #E4E7ED;"
+                            v-else>
 
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <script src="./lib/vue@3.2.47.global.min.js"></script>
+    <script src="./lib/element-plus@2.9.11/index.js"></script>
     <script>
         const app = Vue.createApp({
             data() {
                 return {
-                    w: 2,
-                    h: 3,
-                    map: []
+                    w: 0,
+                    h: 0,
+                    map: [],
+                    size: 5,
+                    sizes: [],
+                    startTime: 0
                 }
             },
             mounted() {
-                let t = this.w * this.h - 1;
-                let arr = [];
-                for (let i = 1; i <= t; i++) {
-                    arr.push({ v: i, w: Math.random() });
+                this.sizes = [];
+                for (let i = 3; i <= 10; i++) {
+                    this.sizes.push(i);
                 }
-                arr.sort((a, b) => a.w - b.w);
-                let rn = 0;
-                for (let i = 0; i < arr.length; i++) {
-                    for (let j = i + 1; j < arr.length; j++) {
-                        if (arr[j].v > arr[i].v) {
-                            rn++;
-                        }
-                    }
-                }
-                console.log(rn);
-                rn += this.w * this.h;
-                arr.push({ v: 0 });
-                this.map = [];
-                for (let i = 0; i < arr.length; i++) {
-                    if (i % this.w == 0) {
-                        this.map.push([]);
-                    }
-                    let v = arr[i].v;
-                    if (rn % 2 === 0) {
-                        console.log("==")
-                        v = v == 1 ? 2 : v == 2 ? 1 : v;
-                    }
-                    this.map[this.map.length - 1].push(v);
-                }
-                console.log(this.map)
+                this.selectSize(this.size, this.size);
             },
             methods: {
+                selectSize(w, h) {
+                    this.w = w;
+                    this.h = h;
+                    this.genMap();
+                },
+                genMap() {
+                    this.startTime = new Date().getTime();
+                    let arr = [];
+                    for (let i = 1; i <= this.w * this.h - 1; i++) {
+                        arr.push({ v: i, w: Math.random() });
+                    }
+                    arr.sort((a, b) => a.w - b.w);
+                    let rn = 0;
+                    for (let i = 0; i < arr.length; i++) {
+                        for (let j = i + 1; j < arr.length; j++) {
+                            if (arr[j].v > arr[i].v) {
+                                rn++;
+                            }
+                        }
+                    }
+                    rn += this.w - 1;
+                    arr.push({ v: 0 });
+                    this.map = [];
+                    for (let i = 0; i < arr.length; i++) {
+                        if (i % this.w == 0) {
+                            this.map.push([]);
+                        }
+                        let v = arr[i].v;
+                        if (rn % 2 === 1) {
+                            console.log("==")
+                            v = v == 1 ? 2 : v == 2 ? 1 : v;
+                        }
+                        this.map[this.map.length - 1].push(v);
+                    }
+                },
                 step(x, y) {
-                    console.log(x, y)
                     let t = this.map[y][x];
                     if (x - 1 >= 0 && this.map[y][x - 1] === 0) {
                         this.map[y][x - 1] = t;
@@ -89,9 +112,23 @@
                         return;
                     }
                     this.map[y][x] = 0;
+                    this.win();
+                },
+                win() {
+                    for (let i = 0; i < this.w * this.h - 1; i++) {
+                        if (this.map[Math.floor(i / this.w)][i % this.w] != i + 1) {
+                            return;
+                        }
+                    }
+                    setTimeout(() => {
+                        let dd = new Date().getTime() - this.startTime;
+                        alert(`恭喜你完成 ${this.w}X${this.h} 难度的游戏！耗时：${Math.floor(dd / 1000)}秒`);
+                        this.genMap();
+                    });
                 }
             }
         });
+        app.use(ElementPlus);
         app.mount("#app");
     </script>
 </body>
