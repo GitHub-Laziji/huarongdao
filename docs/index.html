@@ -128,9 +128,153 @@
                     });
                 },
                 auto() {
-                    const solve = (map, w, h, subW, subH) => {
-
+                    let tMap = JSON.parse(JSON.stringify(this.map));
+                    let forbidMap = JSON.parse(JSON.stringify(this.map));
+                    console.log(tMap, forbidMap)
+                    for (let y = 0; y < this.h; y++) {
+                        for (let x = 0; x < this.w; x++) {
+                            forbidMap[y][x] = 0;
+                        }
                     }
+                    let stepList = [];
+                    const find = (num) => {
+                        for (let y = 0; y < this.h; y++) {
+                            for (let x = 0; x < this.w; x++) {
+                                if (tMap[y][x] == num) {
+                                    return { x, y };
+                                }
+                            }
+                        }
+                    }
+                    let init0 = find(0);
+                    const pass = (x, y) => {
+                        return x >= 0 && x < this.w && y >= 0 && y < this.h && forbidMap[y][x] != 1;
+                    }
+                    const passList = (x, y) => {
+                        let list = [];
+                        if (pass(x, y + 1)) {
+                            list.push({ x: x, y: y + 1 });
+                        }
+                        if (pass(x, y - 1)) {
+                            list.push({ x: x, y: y - 1 });
+                        }
+                        if (pass(x + 1, y)) {
+                            list.push({ x: x + 1, y: y });
+                        }
+                        if (pass(x - 1, y)) {
+                            list.push({ x: x - 1, y: y });
+                        }
+                        return list;
+                    }
+                    const bfs = (x1, y1, x2, y2) => {
+                        console.log("bfs======================")
+                        console.log(x1, y1, x2, y2)
+                        console.log("forbidMap", JSON.stringify(forbidMap))
+                        let dp = {};
+                        let queue = [{ x: x1, y: y1, n: 0 }];
+                        while (queue.length) {
+                            // console.log(JSON.stringify(queue), JSON.stringify(dp))
+                            let { x, y, n } = queue.shift();
+                            if (dp[`${x},${y}`] != undefined) {
+                                continue;
+                            }
+                            dp[`${x},${y}`] = n;
+                            for (let next of passList(x, y)) {
+                                queue.push({ n: n + 1, ...next });
+                            }
+                        }
+                        console.log("dp", JSON.stringify(dp))
+                        let shortPath = [];
+                        let x = x2, y = y2;
+                        while (true) {
+                            // console.log(x, y, dp[`${x},${y}`])
+                            shortPath.unshift({ x, y });
+                            if (x == x1 && y == y1) {
+                                break;
+                            }
+                            for (let next of passList(x, y)) {
+                                if (dp[`${next.x},${next.y}`] == dp[`${x},${y}`] - 1) {
+                                    x = next.x;
+                                    y = next.y;
+                                    break;
+                                }
+                            }
+                        }
+
+                        console.log("shortPath", JSON.stringify(shortPath))
+                        console.log("bfs======================end")
+                        return shortPath;
+                    }
+
+                    const moveSp = (x, y) => {
+                        let spXy = find(0);
+                        let spSp = bfs(spXy.x, spXy.y, x, y);
+                        for (let spi = 1; spi < spSp.length; spi++) {
+                            tMap[spSp[spi - 1].y][spSp[spi - 1].x] = tMap[spSp[spi].y][spSp[spi].x]
+                            tMap[spSp[spi].y][spSp[spi].x] = 0;
+                            stepList.push(spSp[spi]);
+                        }
+                    }
+                    const moveNum = (num, x, y) => {
+                        let iXy = find(num);
+                        let tXy = { x, y };
+                        let shortPath = bfs(iXy.x, iXy.y, tXy.x, tXy.y);
+                        for (let s = 1; s < shortPath.length; s++) {
+                            forbidMap[shortPath[s - 1].y][shortPath[s - 1].x] = 1;
+                            moveSp(shortPath[s].x, shortPath[s].y);
+                            forbidMap[shortPath[s - 1].y][shortPath[s - 1].x] = 0;
+                            tMap[shortPath[s].y][shortPath[s].x] = tMap[shortPath[s - 1].y][shortPath[s - 1].x];
+                            tMap[shortPath[s - 1].y][shortPath[s - 1].x] = 0;
+                            stepList.push(shortPath[s - 1]);
+                        }
+                    }
+
+                    for (let y = 0; y < this.h; y++) {
+                        if (this.h - y > 2) {
+                            let startNum = this.w * y + 1;
+                            let endNum1 = startNum + this.w - 2;
+                            let endNum2 = endNum1 + 1;
+                            for (let i = startNum; i < endNum2; i++) {
+                                let tX = (i - 1) % this.w, tY = Math.floor((i - 1) / this.h);
+                                moveNum(i, tX, tY);
+                                forbidMap[tY][tX] = 1;
+                            }
+
+                            let tX = (endNum2 - 1) % this.w, tY = Math.floor((endNum2 - 1) / this.h);
+                            if (tMap[tY][tX] != endNum2) {
+                                moveNum(endNum2, tX, tY + 2);
+                                forbidMap[tY + 2][tX] = 1;
+                                forbidMap[tY][tX - 1] = 0;
+                                moveNum(endNum1, tX, tY + 1);
+                                forbidMap[tY + 1][tX] = 1;
+                                moveSp(tX, tY);
+
+                                forbidMap[tY + 2][tX] = 0;
+                                forbidMap[tY + 1][tX] = 0;
+                                moveSp(tX, tY + 1);
+                                moveSp(tX, tY + 2);
+                                moveSp(tX - 1, tY + 2);
+                                moveSp(tX - 1, tY + 1);
+                                moveSp(tX - 1, tY + 0);
+                                moveSp(tX, tY);
+                                moveSp(tX, tY + 1);
+                            }
+                            forbidMap[tY][tX - 1] = 1;
+                            forbidMap[tY][tX] = 1;
+                        }
+                    }
+                    console.log(stepList)
+                    const run = (xy, i) => {
+                        if (i >= stepList.length) {
+                            return;
+                        }
+                        this.map[xy.y][xy.x] = this.map[stepList[i].y][stepList[i].x]
+                        this.map[stepList[i].y][stepList[i].x] = 0;
+                        setTimeout(() => {
+                            run(stepList[i], i + 1);
+                        }, 200)
+                    }
+                    run(init0, 0);
                 }
             }
         });
