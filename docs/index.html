@@ -297,13 +297,14 @@
                     // console.log(stepList)
                     const run = (xy, i) => {
                         if (i >= stepList.length) {
+                            this.win();
                             return;
                         }
-                        this.map[xy.y][xy.x] = this.map[stepList[i].y][stepList[i].x]
+                        this.map[xy.y][xy.x] = this.map[stepList[i].y][stepList[i].x];
                         this.map[stepList[i].y][stepList[i].x] = 0;
                         setTimeout(() => {
                             run(stepList[i], i + 1);
-                        }, 200)
+                        }, 80)
                     }
                     run(init0, 0);
                 }
