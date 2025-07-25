@@ -93,7 +93,6 @@
                         }
                         let v = arr[i].v;
                         if (rn % 2 === 1) {
-                            // console.log("==")
                             v = v == 1 ? 2 : v == 2 ? 1 : v;
                         }
                         this.map[this.map.length - 1].push(v);
@@ -166,13 +165,9 @@
                         return list;
                     }
                     const bfs = (x1, y1, x2, y2) => {
-                        // console.log("bfs======================")
-                        // console.log(x1, y1, x2, y2)
-                        // console.log("forbidMap", JSON.stringify(forbidMap))
                         let dp = {};
                         let queue = [{ x: x1, y: y1, n: 0 }];
                         while (queue.length) {
-                            // console.log(JSON.stringify(queue), JSON.stringify(dp))
                             let { x, y, n } = queue.shift();
                             if (dp[`${x},${y}`] != undefined) {
                                 continue;
@@ -182,11 +177,9 @@
                                 queue.push({ n: n + 1, ...next });
                             }
                         }
-                        // console.log("dp", JSON.stringify(dp))
                         let shortPath = [];
                         let x = x2, y = y2;
                         while (true) {
-                            // console.log(x, y, dp[`${x},${y}`])
                             shortPath.unshift({ x, y });
                             if (x == x1 && y == y1) {
                                 break;
@@ -199,9 +192,6 @@
                                 }
                             }
                         }
-
-                        // console.log("shortPath", JSON.stringify(shortPath))
-                        // console.log("bfs======================end")
                         return shortPath;
                     }
 
@@ -263,11 +253,9 @@
                     for (let x = 0; x < this.w - 2; x++) {
                         let endNum1 = this.w * (this.h - 2) + 1 + x;
                         let endNum2 = endNum1 + this.w;
-                        console.log(endNum1, endNum2)
                         let tX = x, tY = this.h - 2;
                         moveNum(endNum1, tX, tY);
                         forbidMap[tY][tX] = 1;
-
 
                         if (tMap[tY + 1][tX] != endNum2) {
                             moveNum(endNum2, tX + 2, tY + 1);
@@ -286,15 +274,13 @@
                             moveSp(tX, tY);
                             moveSp(tX, tY + 1);
                             moveSp(tX + 1, tY + 1);
-
-                            forbidMap[tY][tX] = 1;
-                            forbidMap[tY + 1][tX] = 1;
                         }
+                        forbidMap[tY][tX] = 1;
+                        forbidMap[tY + 1][tX] = 1;
                     }
                     moveNum(this.w * (this.h - 1) - 1, this.w - 2, this.h - 2);
                     forbidMap[this.h - 2][this.w - 2] = 1;
                     moveSp(this.w - 1, this.h - 1);
-                    // console.log(stepList)
                     const run = (xy, i) => {
                         if (i >= stepList.length) {
                             this.win();
